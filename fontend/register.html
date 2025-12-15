@@ -1,0 +1,172 @@
+-<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Register - College Placement System</title>
+  <style>
+    /* ===== Internal CSS ===== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #2575fc, #6a11cb);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .register-container {
+      background: white;
+      padding: 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      width: 400px;
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    form input, form select, form button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    form button {
+      background-color: #2575fc;
+      color: white;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.3s ease;
+    }
+
+    form button:hover {
+      background-color: #1a5ed7;
+      transform: scale(1.05);
+    }
+
+    p {
+      margin-top: 15px;
+      font-size: 14px;
+    }
+
+    a {
+      color: #2575fc;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    /* Department field hidden by default */
+    #departmentField {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="register-container">
+    <h2>Create Account</h2>
+    <form id="registerForm">
+      <input type="text" id="name" placeholder="Full Name" required>
+      <input type="email" id="email" placeholder="Email" required>
+      <input type="password" id="password" placeholder="Password" required>
+      <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+
+      <select id="role" required>
+        <option value="">Select Role</option>
+        <option value="student">Student</option>
+        <option value="staff">Staff</option>
+      </select>
+
+      <!-- Department field only for students -->
+      <select id="departmentField">
+        <option value="">Select Department</option>
+        <option value="CSE">CSE</option>
+        <option value="ECE">ECE</option>
+        <option value="EEE">EEE</option>
+        <option value="MECH">MECH</option>
+        <option value="CIVIL">CIVIL</option>
+        <option value="IT">IT</option>
+      </select>
+
+      <button type="submit">Register</button>
+    </form>
+    <p>Already have an account? <a href="login.html">Login here</a></p>
+  </div>
+
+  <script>
+    const roleSelect = document.getElementById('role');
+    const deptField = document.getElementById('departmentField');
+
+    // Show/hide department field based on role
+    roleSelect.addEventListener('change', function() {
+      if (this.value === 'student') {
+        deptField.style.display = 'block';
+      } else {
+        deptField.style.display = 'none';
+      }
+    });
+
+    // Handle form submission
+    document.getElementById('registerForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      const role = roleSelect.value;
+      const department = deptField.value;
+
+      // Simple validations
+      if (password !== confirmPassword) {
+        alert("Passwords do not match!");
+        return;
+      }
+
+      if (role === 'student' && department === "") {
+        alert("Please select your department!");
+        return;
+      }
+
+      const userData = { name, email, password, role, department };
+
+      try {
+        const res = await fetch('http://localhost:5000/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(userData)
+        });
+
+        const result = await res.json();
+
+        if (res.status === 201) {
+          alert(result.message); // success
+          window.location.href = "login.html"; // redirect to login
+        } else {
+          alert(result.message); // show error from backend
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Error connecting to server. Please try again.");
+      }
+    });
+  </script>
+
+</body>
+</html>

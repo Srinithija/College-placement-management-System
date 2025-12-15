@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>College Placement System - Login</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #6a11cb, #2575fc);
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+    }
+    .login-container {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      width: 350px;
+      text-align: center;
+    }
+    h2 { color: #333; margin-bottom: 20px; }
+    form input, form select, form button {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    form button {
+      background-color: #2575fc;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s ease;
+    }
+    form button:hover { background-color: #1a5ed7; }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h2>Placement Management System</h2>
+    <form id="loginForm">
+      <select id="role" required>
+        <option value="">Select Role</option>
+        <option value="student">Student</option>
+        <option value="staff">Staff</option>
+        <option value="admin">Admin</option>
+      </select>
+      <input type="email" id="email" placeholder="Email" required>
+      <input type="password" id="password" placeholder="Password" required>
+      <button type="submit">Login</button>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const role = document.getElementById('role').value;
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      if (!role) {
+        alert('Please select a role before logging in.');
+        return;
+      }
+
+      // Define backend base URL based on role
+      let baseUrl = '';
+      if (role === 'student') baseUrl = 'http://localhost:5000/api/student/login';
+      else if (role === 'staff') baseUrl = 'http://localhost:5000/api/staff/login';
+      else if (role === 'admin') baseUrl = 'http://localhost:5000/api/admin/login';
+
+      try {
+        const res = await fetch(baseUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        const result = await res.json();
+
+        if (res.status === 200) {
+           // ✅ Store token and role for all types
+        sessionStorage.setItem('token', result.token);
+        sessionStorage.setItem('role', role);
+          if (role === 'student') {
+            //sessionStorage.setItem('token', result.token);
+            alert(`Login successful! Welcome ${result.student.name}`);
+            window.location.href = 'student_dashboard.html';
+          } else if (role === 'staff') {
+           // sessionStorage.setItem('token', result.token);
+            alert(`Login successful! Welcome Staff: ${result.staff.name}`);
+            window.location.href = 'staff_dashboard.html';
+          } else if (role === 'admin') {
+            alert(`Login successful! Welcome Admin: ${result.admin.name}`);
+            window.location.href = 'admin_dashboard.html';
+          }
+        } else {
+          alert(result.message || 'Login failed');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Error connecting to server. Please try again.');
+      }
+    });
+  </script>
+</body>
+</html>

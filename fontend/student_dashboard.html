@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Poppins', sans-serif; }
+    .section { display: none; }
+    .active { display: block; }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex">
+  <!-- Sidebar -->
+  <aside class="w-64 bg-blue-700 text-white flex flex-col">
+    <div class="p-6 text-center border-b border-blue-500">
+      <h2 class="text-2xl font-semibold">Student Panel</h2>
+    </div>
+    <nav class="flex-1 p-4 space-y-2">
+      <button class="w-full text-left py-2 px-3 rounded hover:bg-blue-600" onclick="showSection('profile')">👤 Profile</button>
+      <button class="w-full text-left py-2 px-3 rounded hover:bg-blue-600" onclick="showSection('jobs')">💼 Jobs</button>
+      <button class="w-full text-left py-2 px-3 rounded hover:bg-blue-600" onclick="showSection('trainings')">📚 Trainings</button>
+      <button class="w-full text-left py-2 px-3 rounded hover:bg-blue-600" onclick="showSection('announcements')">📢 Announcements</button>
+      <button class="w-full text-left py-2 px-3 rounded hover:bg-blue-600" onclick="showSection('applications')">📝 Applications</button>
+    </nav>
+    <div class="p-4 border-t border-blue-600">
+      <button onclick="logout()" class="w-full bg-red-500 py-2 rounded hover:bg-red-600">🚪 Logout</button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 p-8 overflow-auto">
+    <h1 class="text-3xl font-semibold text-blue-700 mb-6">Student Dashboard</h1>
+
+    <!-- Profile -->
+    <section id="profile" class="section active">
+      <h2 class="text-xl font-semibold text-gray-700 mb-3">Profile</h2>
+      <div class="bg-white shadow rounded-lg p-4">
+        <form id="profileForm" class="flex flex-wrap gap-4">
+          <input id="pname" placeholder="Name" class="border p-2 rounded w-60" required>
+          <input id="pemail" placeholder="Email" class="border p-2 rounded w-60" required>
+          <input id="pdepartment" placeholder="Department" class="border p-2 rounded w-60">
+          <input id="ppass" type="password" placeholder="New Password (optional)" class="border p-2 rounded w-60">
+
+          <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Update Profile</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Jobs -->
+    <section id="jobs" class="section">
+      <h2 class="text-xl font-semibold text-gray-700 mb-3">Available Jobs</h2>
+      <div class="bg-white shadow rounded-lg p-4">
+        <table class="w-full border-collapse">
+          <thead class="bg-blue-700 text-white">
+            <tr><th class="p-2">Title</th><th>Company</th><th>Description</th><th>Action</th></tr>
+          </thead>
+          <tbody id="jobsTable" class="text-gray-700"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Trainings -->
+    <section id="trainings" class="section">
+      <h2 class="text-xl font-semibold text-gray-700 mb-3">Trainings</h2>
+      <div class="bg-white shadow rounded-lg p-4">
+        <table class="w-full border-collapse">
+          <thead class="bg-blue-700 text-white"><tr><th>Title</th><th>Trainer</th><th>Date</th></tr></thead>
+          <tbody id="trainingTable" class="text-gray-700"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Announcements -->
+    <section id="announcements" class="section">
+      <h2 class="text-xl font-semibold text-gray-700 mb-3">Announcements</h2>
+      <div class="bg-white shadow rounded-lg p-4">
+        <table class="w-full border-collapse">
+          <thead class="bg-blue-700 text-white"><tr><th>Title</th><th>Message</th><th>Date</th></tr></thead>
+          <tbody id="annTable" class="text-gray-700"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Applications -->
+    <section id="applications" class="section">
+      <h2 class="text-xl font-semibold text-gray-700 mb-3">My Applications</h2>
+      <div class="bg-white shadow rounded-lg p-4">
+        <table class="w-full border-collapse">
+          <thead class="bg-blue-700 text-white"><tr><th>Job</th><th>Company</th><th>Status</th></tr></thead>
+          <tbody id="appTable" class="text-gray-700"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    const token = sessionStorage.getItem('token');
+    const base = 'http://localhost:5000/api/student';
+
+    if (!token) {
+      alert('Student not logged in');
+      window.location.href = 'login.html';
+    }
+
+    function showSection(id) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    function logout() {
+      sessionStorage.removeItem('token');
+      window.location.href = 'login.html';
+    }
+
+   // ... existing code ...
+   async function fetchData(url, options={}) {
+  options.headers = {
+    ...options.headers,
+    'Authorization': `Bearer ${token}`,
+  };
+  const res = await fetch(url, options);
+  if (!res.ok) {
+    const data = await res.json();
+    alert(data.message || 'Error fetching data');
+    return null;
+  }
+  return await res.json();
+}
+
+    // Load Profile
+    async function loadProfile() {
+      const student = await fetchData(`${base}/me`);
+      if (!student) return;
+      document.getElementById('pname').value = student.name;
+      document.getElementById('pemail').value = student.email;
+      document.getElementById('pdepartment').value = student.department || '';
+     
+    }
+
+    document.getElementById('profileForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const res = await fetchData(`${base}/me/profile`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          name: document.getElementById('pname').value,
+          email: document.getElementById('pemail').value,
+          department: document.getElementById('pdepartment').value,
+          password: document.getElementById('ppass').value
+        }),
+        headers: { 'Content-Type':'application/json' }
+      });
+      if (res) {
+        alert(res.message);
+        loadProfile();
+      }
+    });
+
+    // Load Jobs
+  // ... existing code ...
+    // Load Jobs
+   async function loadJobs() {
+  try {
+    const jobs = await fetchData(`${base}/jobs`);
+    const applications = await fetchData(`${base}/applications`);
+    
+    // Handle case where jobs or applications are null (API error)
+    if (!jobs) {
+      document.getElementById('jobsTable').innerHTML = `<tr><td colspan="4" class="text-center p-4 text-red-500">Failed to load jobs. Please try again later.</td></tr>`;
+      return;
+    }
+
+    // Handle case where applications are null (but still try to show jobs)
+    const appliedJobs = applications ? applications.map(a => {
+      // Handle case where jobId might be null
+      return a.jobId ? a.jobId._id : null;
+    }).filter(id => id !== null) : [];
+
+    document.getElementById('jobsTable').innerHTML =
+      jobs.length ? jobs.map(j => {
+        // Handle case where job properties might be missing
+        const jobId = j._id || '';
+        const title = j.title || 'No title';
+        const company = j.company || 'No company';
+        const description = j.description || 'No description';
+        
+        return `
+        <tr>
+          <td class="p-2">${title}</td>
+          <td class="p-2">${company}</td>
+          <td class="p-2">${description}</td>
+          <td class="p-2">
+            <button onclick="applyJob('${jobId}')" 
+             class="${appliedJobs.includes(jobId) ? 
+             'bg-gray-500 cursor-not-allowed px-3 py-1 rounded' : 
+             'bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600'}"
+             ${appliedJobs.includes(jobId) ? 'disabled':''}>
+             ${appliedJobs.includes(jobId) ? 'Applied' : 'Apply'}
+           </button>
+          </td>
+        </tr>`;
+      }).join('') 
+      : `<tr><td colspan="4" class="text-center p-4">No Jobs Available</td></tr>`;
+  } catch (error) {
+    console.error('Error loading jobs:', error);
+    document.getElementById('jobsTable').innerHTML = `<tr><td colspan="4" class="text-center p-4 text-red-500">Error loading jobs: ${error.message}</td></tr>`;
+  }
+}
+
+    async function applyJob(jobId) {
+      const res = await fetchData(`${base}/jobs/apply`, {
+        method: 'POST',
+        body: JSON.stringify({ jobId }),
+        headers: { 'Content-Type':'application/json' }
+      });
+      if (res) {
+        alert(res.message);
+        loadJobs();
+        loadApplications();
+      }
+    }
+
+    async function loadTrainings() {
+      try {
+        const trainings = await fetchData(`${base}/trainings`);
+        if (!trainings) {
+          document.getElementById('trainingTable').innerHTML = `<tr><td colspan="3" class="text-center p-4 text-red-500">Failed to load trainings. Please try again later.</td></tr>`;
+          return;
+        }
+        document.getElementById('trainingTable').innerHTML =
+          trainings.map(t => {
+            const title = t.title || 'No title';
+            const trainer = t.trainer || 'No trainer';
+            const date = t.date ? new Date(t.date).toLocaleDateString() : 'No date';
+            return `<tr><td class="p-2">${title}</td><td class="p-2">${trainer}</td><td class="p-2">${date}</td></tr>`;
+          }).join('');
+      } catch (error) {
+        console.error('Error loading trainings:', error);
+        document.getElementById('trainingTable').innerHTML = `<tr><td colspan="3" class="text-center p-4 text-red-500">Error loading trainings: ${error.message}</td></tr>`;
+      }
+    }
+
+    async function loadAnnouncements() {
+      try {
+        const anns = await fetchData(`${base}/announcements`);
+        if (!anns) {
+          document.getElementById('annTable').innerHTML = `<tr><td colspan="3" class="text-center p-4 text-red-500">Failed to load announcements. Please try again later.</td></tr>`;
+          return;
+        }
+        document.getElementById('annTable').innerHTML =
+          anns.map(a => {
+            const title = a.title || 'No title';
+            const message = a.message || 'No message';
+            const date = a.date ? new Date(a.date).toLocaleDateString() : 'No date';
+            return `<tr><td class="p-2">${title}</td><td class="p-2">${message}</td><td class="p-2">${date}</td></tr>`;
+          }).join('');
+      } catch (error) {
+        console.error('Error loading announcements:', error);
+        document.getElementById('annTable').innerHTML = `<tr><td colspan="3" class="text-center p-4 text-red-500">Error loading announcements: ${error.message}</td></tr>`;
+      }
+    }
+
+    async function loadApplications() {
+      try {
+        const apps = await fetchData(`${base}/applications`);
+        if (!apps) {
+          document.getElementById('appTable').innerHTML = `<tr><td colspan="3" class="text-center p-4 text-red-500">Failed to load applications. Please try again later.</td></tr>`;
+          return;
+        }
+        document.getElementById('appTable').innerHTML =
+          apps.map(a => {
+            // Handle case where jobId might be null or missing properties
+            const jobTitle = (a.jobId && a.jobId.title) ? a.jobId.title : 'Unknown Job';
+            const jobCompany = (a.jobId && a.jobId.company) ? a.jobId.company : 'Unknown Company';
+            const status = a.status || 'Unknown Status';
+            
+            return `<tr><td class="p-2">${jobTitle}</td><td class="p-2">${jobCompany}</td><td class="p-2">${status}</td></tr>`;
+          }).join('');
+      } catch (error) {
+        console.error('Error loading applications:', error);
+        document.getElementById('appTable').innerHTML = `<tr><td colspan="3" class="text-center p-4 text-red-500">Error loading applications: ${error.message}</td></tr>`;
+      }
+    }
+// ... existing code ...
+
+    // Initial load
+    loadProfile();
+    loadJobs();
+    loadTrainings();
+    loadAnnouncements();
+    loadApplications();
+  </script>
+// ... existing code ...
+</body>
+</html>
