@@ -1,8 +1,11 @@
 {
   "name": "fontend",
   "version": "1.0.0",
-  "main": "login.js",
-   "scripts": {
+  "main": "index.html",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
     "test": "cypress run",
     "test:open": "cypress open",
     "cy:run": "cypress run"
@@ -12,6 +15,7 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
-    "cypress": "^15.5.0"
+    "cypress": "^15.5.0",
+    "vite": "^5.0.0"
   }
 }

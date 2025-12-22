@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
@@ -15,7 +16,9 @@ app.use(bodyParser.json());
 app.use(cors());
 
 // MongoDB connection
-mongoose.connect('mongodb://127.0.0.1:27017/placementDB', {
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://srinithija:Sri%401972@truthvsnoise.f1bsvzh.mongodb.net/placementDB?appName=truthvsnoise';
+
+mongoose.connect(MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
@@ -47,6 +50,14 @@ app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/staff', staffRouter);
 app.use('/api/student', studentRouter);
-// Start server
-const PORT = 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+// For Vercel deployment
+const PORT = process.env.PORT || 5000;
+
+// Only listen if not running in Vercel
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+}
+
+// Export the app for Vercel
+module.exports = app;
