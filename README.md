@@ -1,6 +1,6 @@
 # 🎓 College Placement Management System
 
-A role-based, end-to-end placement management system designed to streamline recruitment drives, training sessions, announcements, and job applications for educational institutions. The application is built using a MEAN-style stack consisting of a Node.js/Express API, MongoDB/Mongoose models, and a static frontend served via Vite, complete with automated Cypress E2E test suites.
+A role-based, end-to-end placement management system designed to streamline recruitment drives, training sessions, announcements, and job applications for educational institutions. The application is built using a Full stack consisting of a Node.js/Express API, MongoDB/Mongoose models, and a static frontend served via Vite, complete with automated Cypress E2E test suites.
 
 ---
 
