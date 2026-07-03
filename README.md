@@ -243,13 +243,3 @@ The E2E tests are configured in `fontend/cypress.config.js` and target the local
 
 ---
 
-## ☁️ Production Deployment
-
-Both parts of the application are pre-configured for serverless hosting on [Vercel](https://vercel.com).
-
-### Backend Serverless Routing
-The file `backend/vercel.json` maps incoming endpoint traffic to the Vercel Serverless Function engine handler located at `backend/api/index.js`.
-*   Ensure that you set the environment variable variables `MONGODB_URI` and `JWT_SECRET` in your Vercel Project Dashboard settings.
-
-### Frontend Single Page Application Routing
-`fontend/vercel.json` intercepts client navigation routes and redirects fallback queries to `index.html` to prevent server errors on reload.
